@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { SunIcon, MoonIcon, ArrowUpIcon, BoltIcon } from "@heroicons/react/24/solid";
+import {
+  SunIcon,
+  MoonIcon,
+  ArrowUpIcon,
+  BoltIcon,
+} from "@heroicons/react/24/solid";
 
 export default function Home() {
   const [messages, setMessages] = useState<{ user: string; text: string }[]>(
@@ -13,22 +18,58 @@ export default function Home() {
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const handleSend = () => {
+  // Dark mode preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setDarkMode(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => setDarkMode(e.matches);
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  // Function to send messages
+  const handleSend = async () => {
     if (input.trim() && !loading) {
-      setMessages((prev) => [...prev, { user: "You", text: input }]);
+      const userMessage = { user: "You", text: input };
+      setMessages((prev) => [...prev, userMessage]);
       setInput("");
       setLoading(true);
 
-      setTimeout(() => {
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: input }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiMessage = {
+          user: "AI",
+          text: data.reply || "Error: No response",
+        };
+
+        setMessages((prev) => [...prev, aiMessage]);
+      } catch (error) {
+        console.error("API Error:", error);
         setMessages((prev) => [
           ...prev,
-          { user: "AI", text: "This is a sample response." },
+          { user: "AI", text: "Error processing request." },
         ]);
-        setLoading(false);
-      }, 1000);
+      }
+
+      setLoading(false);
     }
   };
 
+  // Handle "Enter" key to send message
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey && !loading) {
       e.preventDefault();
@@ -36,25 +77,17 @@ export default function Home() {
     }
   };
 
+  // Scroll to latest message
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
+  // Auto-focus input after response
   useEffect(() => {
     if (!loading && textareaRef.current) {
       textareaRef.current.focus();
     }
   }, [loading]);
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "40px";
-      textareaRef.current.style.height = `${Math.min(
-        textareaRef.current.scrollHeight,
-        150
-      )}px`;
-    }
-  }, [input]);
 
   return (
     <div
@@ -87,19 +120,18 @@ export default function Home() {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`p-2 px-4 rounded-3xl break-words w-fit max-w-3xl ${
+            className={`p-2 px-4 rounded-3xl break-words w-fit max-w-xl ${
               message.user === "You"
                 ? "bg-blue-500 text-white self-end ml-auto"
-                : "bg-gray-300 text-black self-start dark:bg-gray-700 dark:text-white"
+                : "bg-gray-300 text-black self-start"
             }`}
           >
             {message.text}
           </div>
         ))}
 
-        {/* Loading Animation */}
         {loading && (
-          <div className=" p-2 px-4 rounded-3xl break-words w-fit max-w-3xl bg-gray-300 text-black self-start">
+          <div className="p-2 px-4 rounded-3xl break-words w-fit max-w-3xl bg-gray-300 text-black self-start">
             ...
           </div>
         )}
@@ -120,13 +152,11 @@ export default function Home() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
-          className={`flex-1 p-3 border rounded-2xl resize-none overflow-y-auto max-h-[150px] 
-            ${
-              darkMode
-                ? "bg-[#303030] text-white border-gray-600"
-                : "bg-white text-black border-gray-300"
-            } 
-            ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`flex-1 p-3 border rounded-2xl resize-none overflow-y-auto max-h-[150px] ${
+            darkMode
+              ? "bg-[#303030] text-white border-gray-600"
+              : "bg-white text-black border-gray-300"
+          } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
           placeholder={
             loading ? "Waiting for response..." : "Type a message..."
           }
@@ -134,22 +164,21 @@ export default function Home() {
           disabled={loading}
         />
         <button
-          onClick={() => (loading ? setLoading(false) : handleSend())}
-          className={`p-3 rounded-full transition 
-            ${
-              loading
-                ? "cursor-not-allowed"
-                : darkMode
-                ? "bg-white hover:bg-gray-300 text-black"
-                : "bg-black hover:bg-gray-800 text-white"
-            }`}
-              disabled={loading}
-            >
-              {loading ? (
-                <BoltIcon className="h-6 w-6" />
-              ) : (
-                <ArrowUpIcon className="h-6 w-6" />
-              )}
+          onClick={handleSend}
+          className={`p-3 rounded-full transition ${
+            loading
+              ? "cursor-not-allowed"
+              : darkMode
+              ? "bg-white hover:bg-gray-300 text-black"
+              : "bg-black hover:bg-gray-800 text-white"
+          }`}
+          disabled={loading}
+        >
+          {loading ? (
+            <BoltIcon className="h-6 w-6" />
+          ) : (
+            <ArrowUpIcon className="h-6 w-6" />
+          )}
         </button>
       </div>
     </div>
