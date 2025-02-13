@@ -114,13 +114,13 @@ export default function Home() {
 
       {/* Chat Window */}
       <div
-        className="flex-1 overflow-y-auto p-4 space-y-3 mx-64"
+        className="flex-1 overflow-y-auto p-4 space-y-3 md:mx-64"
         style={{ paddingBottom: "80px" }}
       >
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`p-2 px-4 rounded-3xl break-words w-fit max-w-xl ${
+            className={`p-2 px-4 rounded-3xl break-words w-fit max-w-64 md:max-w-xl ${
               message.user === "You"
                 ? "bg-blue-500 text-white self-end ml-auto"
                 : "bg-gray-300 text-black self-start"
