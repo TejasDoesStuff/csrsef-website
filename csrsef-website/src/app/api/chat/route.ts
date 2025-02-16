@@ -28,8 +28,8 @@ export async function POST(req: Request) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [{ role: "user", content: message }],
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: message + "Do not generate responses that could potentially be harmful for the user." }],
         temperature: 0.7,
       }),
     });

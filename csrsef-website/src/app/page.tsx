@@ -7,6 +7,7 @@ import {
   ArrowUpIcon,
   BoltIcon,
 } from "@heroicons/react/24/solid";
+import ReactMarkdown from "react-markdown";
 
 export default function Home() {
   const [messages, setMessages] = useState<{ user: string; text: string }[]>(
@@ -18,7 +19,7 @@ export default function Home() {
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // checks computer's display mode 
+  // checks computer's display mode
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setDarkMode(mediaQuery.matches);
@@ -51,11 +52,11 @@ export default function Home() {
         }
 
         const data = await response.json();
-        const aiMessage = {
-          user: "AI",
-          text: data.reply || "Error: No response",
-        };
+        let aiReply = data.reply || "Error: No response";
 
+        aiReply = aiReply.replace(/\n/g, "\n\n");
+
+        const aiMessage = { user: "AI", text: aiReply };
         setMessages((prev) => [...prev, aiMessage]);
       } catch (error) {
         console.error("API Error:", error);
@@ -97,7 +98,7 @@ export default function Home() {
     >
       {/* Header */}
       <div className="flex justify-between items-center p-4 border-b border-gray-300 dark:border-gray-700">
-        <h1 className="text-2xl font-bold">CSRSEF Chatbot</h1>
+        <h1 className="text-2xl font-bold">Research Chatbot</h1>
         <button
           onClick={() => setDarkMode(!darkMode)}
           className={`p-2 rounded-full transition ${
@@ -126,7 +127,7 @@ export default function Home() {
                 : "bg-gray-300 text-black self-start"
             }`}
           >
-            {message.text}
+            <ReactMarkdown>{message.text}</ReactMarkdown>
           </div>
         ))}
 
