@@ -16,6 +16,10 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -29,6 +33,15 @@ export default function Home() {
 
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
+
+  // handle password authentication
+  const handleLogin = () => {
+    if (password === process.env.NEXT_PUBLIC_PASSWORD) {
+      setAuthenticated(true);
+    } else {
+      setError("Incorrect password. Please try again.");
+    }
+  };
 
   // send messages
   const handleSend = async () => {
@@ -89,6 +102,28 @@ export default function Home() {
       textareaRef.current.focus();
     }
   }, [loading]);
+
+  if (!authenticated) {
+    return (
+      <div className="p-6 bg-white text-center w-screen h-screen flex justify-center items-center flex-col">
+        <h2 className="text-2xl font-bold mb-4">Enter Password</h2>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border p-2 rounded-lg w-2/3 md:w-1/3 mb-4"
+          placeholder="Enter password"
+        />
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <button
+          onClick={handleLogin}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          Access Chatbot
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div
