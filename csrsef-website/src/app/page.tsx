@@ -36,27 +36,28 @@ export default function Home() {
 
   // handle password authentication
   const handleLogin = async () => {
-  try {
-    const response = await fetch("/api/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
+    try {
+      const response = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
 
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      if (!response.ok)
+        throw new Error(`HTTP error! Status: ${response.status}`);
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.authenticated) {
-      setAuthenticated(true);
-    } else {
-      setError("Incorrect password. Please try again.");
+      if (data.authenticated) {
+        setAuthenticated(true);
+      } else {
+        setError("Incorrect password. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("An error occurred. Please try again.");
     }
-  } catch (error) {
-    console.error("Login error:", error);
-    setError("An error occurred. Please try again.");
-  }
-};
+  };
 
   // send messages
   const handleSend = async () => {
@@ -120,13 +121,19 @@ export default function Home() {
 
   if (!authenticated) {
     return (
-      <div className="p-6 bg-white text-center w-screen h-screen flex justify-center items-center flex-col">
+      <div
+        className={`p-6 text-center w-screen h-screen flex justify-center items-center flex-col ${
+          darkMode
+            ? "bg-[#303030] text-white border-gray-600"
+            : "bg-white text-black border-gray-300"
+        }`}
+      >
         <h2 className="text-2xl font-bold mb-4">Enter Password</h2>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 rounded-lg w-2/3 md:w-1/3 mb-4"
+          className="border p-2 rounded-lg w-2/3 md:w-1/3 mb-4 text-black"
           placeholder="Enter password"
         />
         {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -162,7 +169,7 @@ export default function Home() {
           )}
         </button>
       </div>
-  
+
       {/* Chat Area - Uses Flex to Fill Space */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 md:mx-64 min-h-0">
         {messages.map((message, index) => (
@@ -177,16 +184,16 @@ export default function Home() {
             <ReactMarkdown>{message.text}</ReactMarkdown>
           </div>
         ))}
-  
+
         {loading && (
           <div className="p-2 px-4 rounded-3xl break-words w-fit max-w-3xl bg-gray-300 text-black self-start">
             ...
           </div>
         )}
-  
+
         <div ref={chatEndRef}></div>
       </div>
-  
+
       {/* Input Bar - Now Part of Normal Flow */}
       <div
         className={`p-4 border-t flex items-center gap-2 ${
@@ -230,5 +237,5 @@ export default function Home() {
         </button>
       </div>
     </div>
-  );  
+  );
 }
