@@ -35,13 +35,28 @@ export default function Home() {
   }, []);
 
   // handle password authentication
-  const handleLogin = () => {
-    if (password === process.env.NEXT_PUBLIC_PASSWORD) {
+  const handleLogin = async () => {
+  try {
+    const response = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+    const data = await response.json();
+
+    if (data.authenticated) {
       setAuthenticated(true);
     } else {
       setError("Incorrect password. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error("Login error:", error);
+    setError("An error occurred. Please try again.");
+  }
+};
 
   // send messages
   const handleSend = async () => {
@@ -147,12 +162,9 @@ export default function Home() {
           )}
         </button>
       </div>
-
-      {/* Chat */}
-      <div
-        className="flex-1 overflow-y-auto p-4 space-y-3 md:mx-64"
-        style={{ paddingBottom: "80px" }}
-      >
+  
+      {/* Chat Area - Uses Flex to Fill Space */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 md:mx-64 min-h-0">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -165,19 +177,19 @@ export default function Home() {
             <ReactMarkdown>{message.text}</ReactMarkdown>
           </div>
         ))}
-
+  
         {loading && (
           <div className="p-2 px-4 rounded-3xl break-words w-fit max-w-3xl bg-gray-300 text-black self-start">
             ...
           </div>
         )}
-
+  
         <div ref={chatEndRef}></div>
       </div>
-
-      {/* Input */}
+  
+      {/* Input Bar - Now Part of Normal Flow */}
       <div
-        className={`p-4 border-t fixed bottom-0 w-full flex items-center gap-2 ${
+        className={`p-4 border-t flex items-center gap-2 ${
           darkMode
             ? "bg-[#303030] text-white border-gray-600"
             : "bg-white text-black border-gray-300"
@@ -218,5 +230,5 @@ export default function Home() {
         </button>
       </div>
     </div>
-  );
+  );  
 }
