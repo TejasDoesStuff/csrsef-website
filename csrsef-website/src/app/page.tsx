@@ -18,7 +18,7 @@ export default function Home() {
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Dark mode preference
+  // checks computer's display mode 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setDarkMode(mediaQuery.matches);
@@ -29,7 +29,7 @@ export default function Home() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // Function to send messages
+  // send messages
   const handleSend = async () => {
     if (input.trim() && !loading) {
       const userMessage = { user: "You", text: input };
@@ -69,7 +69,7 @@ export default function Home() {
     }
   };
 
-  // Handle "Enter" key to send message
+  // send messages with enter
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey && !loading) {
       e.preventDefault();
@@ -77,12 +77,12 @@ export default function Home() {
     }
   };
 
-  // Scroll to latest message
+  // scroll to newest message
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // Auto-focus input after response
+  // go back to the input bar after response is generated
   useEffect(() => {
     if (!loading && textareaRef.current) {
       textareaRef.current.focus();
@@ -112,7 +112,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Chat Window */}
+      {/* Chat */}
       <div
         className="flex-1 overflow-y-auto p-4 space-y-3 md:mx-64"
         style={{ paddingBottom: "80px" }}
@@ -139,7 +139,7 @@ export default function Home() {
         <div ref={chatEndRef}></div>
       </div>
 
-      {/* Input Bar */}
+      {/* Input */}
       <div
         className={`p-4 border-t fixed bottom-0 w-full flex items-center gap-2 ${
           darkMode

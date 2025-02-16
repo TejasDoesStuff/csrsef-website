@@ -1,6 +1,5 @@
 export async function POST(req: Request) {
   try {
-    console.log("iaushdfiahsjdf");
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       console.error("Error: OPENAI_API_KEY is not set");
