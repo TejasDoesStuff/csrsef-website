@@ -153,7 +153,7 @@ export default function Home() {
         darkMode ? "bg-[#212121] text-white" : "bg-white text-black"
       }`}
     >
-      {/* Header */}
+      {/* header */}
       <div className="flex justify-between items-center p-4 border-b border-gray-300 dark:border-gray-700">
         <h1 className="text-2xl font-bold">Research Chatbot</h1>
         <button
@@ -170,7 +170,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Chat Area - Uses Flex to Fill Space */}
+      {/* chat area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 md:mx-64 min-h-0">
         {messages.map((message, index) => (
           <div
@@ -194,7 +194,7 @@ export default function Home() {
         <div ref={chatEndRef}></div>
       </div>
 
-      {/* Input Bar - Now Part of Normal Flow */}
+      {/* input bar */}
       <div
         className={`p-4 border-t flex items-center gap-2 ${
           darkMode
